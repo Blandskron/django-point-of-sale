@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Login | NovaPOS{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gradient-to-br from-brand-600 to-gray-900 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+    <div class="bg-brand-50 p-8 text-center border-b border-brand-100">
+      <div class="mx-auto bg-brand-600 w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-lg">
+        <!-- Icon -->
+        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 7h18"></path>
+          <path d="M6 7v13h12V7"></path>
+          <path d="M9 7V4h6v3"></path>
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold text-gray-800 tracking-tight">NovaPOS</h1>
+      <p class="text-gray-500 mt-2">Sistema de Punto de Venta</p>
+    </div>
+
+    <form method="post" class="p-8 space-y-6">
+      {% csrf_token %}
+
+      {% if form.errors %}
+        <div class="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-200 text-center">
+          Credenciales inválidas. Intenta nuevamente.
+        </div>
+      {% endif %}
+
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700 block">Usuario</label>
+        <input
+          type="text"
+          name="username"
+          autofocus
+          class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all"
+          placeholder="Ingresa tu usuario"
+          required
+        />
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700 block">Contraseña</label>
+        <input
+          type="password"
+          name="password"
+          class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all active:scale-[0.99]"
+      >
+        Iniciar Sesión
+      </button>
+    </form>
+
+    <div class="bg-gray-50 p-4 text-center text-xs text-gray-400">
+      NovaPOS — demo técnica
+    </div>
+  </div>
+</div>
+{% endblock %}

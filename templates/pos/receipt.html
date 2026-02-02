@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Boleta #{{ sale.id }} | NovaPOS{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+  <div class="max-w-sm w-full">
+    <div class="bg-gray-100 p-2 rounded-lg shadow-2xl">
+      <div class="bg-white p-6 shadow-sm font-mono text-sm relative">
+
+        <div class="text-center mb-6 border-b-2 border-dashed border-gray-300 pb-4">
+          <h2 class="text-xl font-bold uppercase tracking-widest text-gray-900">NovaPOS</h2>
+          <p class="text-gray-500 text-xs mt-1">Av. Siempre Viva 742</p>
+          <p class="text-gray-500 text-xs">RUT: 76.543.210-K</p>
+          <p class="text-gray-500 text-xs mt-2">Tel: +56 9 1234 5678</p>
+        </div>
+
+        <div class="mb-4 text-xs text-gray-600 space-y-1">
+          <div class="flex justify-between">
+            <span>Folio:</span>
+            <span class="font-bold">#{{ sale.id }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Fecha:</span>
+            <span>{{ sale.created_at|date:"d/m/Y H:i" }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Cajero:</span>
+            <span>{{ sale.user.username }}</span>
+          </div>
+        </div>
+
+        <div class="mb-4 border-b-2 border-dashed border-gray-300 pb-4">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-gray-400 border-b border-gray-100">
+                <th class="pb-1">Cant</th>
+                <th class="pb-1">Desc</th>
+                <th class="pb-1 text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-800">
+              {% for item in sale.items.all %}
+                <tr>
+                  <td class="py-1 align-top">{{ item.quantity }}</td>
+                  <td class="py-1 align-top">{{ item.product.name }}</td>
+                  <td class="py-1 align-top text-right">${{ item.total_price|floatformat:0 }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="space-y-1 text-right text-gray-800 mb-6">
+          <div class="flex justify-between text-xs">
+            <span>Neto</span>
+            <span>${{ sale.subtotal|floatformat:0 }}</span>
+          </div>
+          <div class="flex justify-between text-xs">
+            <span>IVA (19%)</span>
+            <span>${{ sale.tax|floatformat:0 }}</span>
+          </div>
+          <div class="flex justify-between text-lg font-bold border-t-2 border-gray-800 pt-2 mt-2">
+            <span>TOTAL</span>
+            <span>${{ sale.total|floatformat:0 }}</span>
+          </div>
+        </div>
+
+        <div class="text-center text-xs text-gray-400 mt-6 pt-4 border-t border-gray-100">
+          <p>¡Gracias por su preferencia!</p>
+          <p class="mt-1">Copia Cliente</p>
+          <div class="mt-4 flex justify-center">
+            <div class="h-10 w-4/5 bg-gray-800"></div>
+          </div>
+        </div>
+
+        <div class="absolute -bottom-2 left-0 w-full h-4 bg-gray-100"
+          style="clip-path: polygon(0% 0%, 5% 100%, 10% 0%, 15% 100%, 20% 0%, 25% 100%, 30% 0%, 35% 100%, 40% 0%, 45% 100%, 50% 0%, 55% 100%, 60% 0%, 65% 100%, 70% 0%, 75% 100%, 80% 0%, 85% 100%, 90% 0%, 95% 100%, 100% 0%);">
+        </div>
+      </div>
+
+      <div class="mt-4 flex gap-2">
+        <button
+          onclick="window.print()"
+          class="flex-1 bg-white text-gray-700 py-2 px-4 rounded-lg font-medium shadow-sm hover:bg-gray-50 transition">
+          Imprimir
+        </button>
+        <a
+          href="{% url 'product_list' %}"
+          class="flex-1 bg-brand-600 text-white py-2 px-4 rounded-lg font-medium shadow-md hover:bg-brand-700 transition text-center">
+          Listo
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

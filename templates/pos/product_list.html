@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block title %}POS | NovaPOS{% endblock %}
+
+{% block body %}
+<div class="flex h-screen overflow-hidden bg-gray-100">
+
+  <!-- LEFT: Product Panel -->
+  <div class="flex-1 flex flex-col min-w-0">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="bg-brand-600 text-white p-2 rounded-lg">
+          <!-- grid icon -->
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-gray-800">Panel de Productos</h1>
+          <p class="text-xs text-gray-500">Cajero: {{ request.user.username }}</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit"
+            class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+            title="Salir">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <path d="M16 17l5-5-5-5"></path>
+              <path d="M21 12H9"></path>
+            </svg>
+          </button>
+        </form>
+
+      </div>
+    </header>
+
+    <!-- Products Grid -->
+    <main class="flex-1 overflow-y-auto p-6">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        {% for product in products %}
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition">
+            <div class="relative h-40 w-full overflow-hidden">
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover" />
+              {% else %}
+                <div class="w-full h-full bg-gray-200"></div>
+              {% endif %}
+
+              <div class="absolute top-2 right-2">
+                <span class="px-2 py-1 text-xs font-bold rounded-full
+                  {% if product.product_type == 'STOCK' %} bg-blue-100 text-blue-700 {% else %} bg-orange-100 text-orange-700 {% endif %}">
+                  {% if product.product_type == 'STOCK' %}Bodega{% else %}Cocina{% endif %}
+                </span>
+              </div>
+            </div>
+
+            <div class="p-4 flex-1 flex flex-col">
+              <h3 class="font-semibold text-gray-800 leading-tight line-clamp-2">{{ product.name }}</h3>
+              <p class="text-xs text-gray-500 mt-1 line-clamp-1">{{ product.description }}</p>
+
+              <div class="mt-auto flex items-center justify-between pt-4">
+                <div class="flex flex-col">
+                  <span class="text-lg font-bold text-gray-900">
+                    ${{ product.price|floatformat:0 }}
+                  </span>
+                  {% if product.product_type == 'STOCK' %}
+                    <span class="text-xs font-medium text-gray-600">
+                      Stock: {{ product.stock|default:"-" }}
+                    </span>
+                  {% else %}
+                    <span class="text-xs font-medium text-orange-600">
+                      Prep. manual
+                    </span>
+                  {% endif %}
+                </div>
+
+                <a href="{% url 'add_to_cart' product.id %}"
+                   class="bg-gray-900 hover:bg-brand-600 text-white p-2.5 rounded-lg transition shadow-sm">
+                  <!-- plus icon -->
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14"></path>
+                    <path d="M5 12h14"></path>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-span-full text-center py-20 text-gray-400">
+            <p>No hay productos activos.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </main>
+  </div>
+
+  <!-- RIGHT: Cart Sidebar (boleta real) -->
+  <aside class="w-96 bg-white border-l border-gray-200 flex flex-col shadow-xl">
+    <div class="p-5 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+      <h2 class="font-bold text-gray-800 flex items-center gap-2">
+        <svg class="w-5 h-5 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"></path>
+        </svg>
+        Boleta Actual
+      </h2>
+
+      <span class="bg-brand-100 text-brand-700 text-xs font-bold px-2 py-1 rounded-full">
+        {{ cart_items|length|default:0 }} items
+      </span>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-4">
+      {% if cart_items|length == 0 %}
+        <div class="h-full flex flex-col items-center justify-center text-gray-400 space-y-3">
+          <p class="text-sm font-medium">El carrito está vacío</p>
+          <p class="text-xs text-gray-400">Agrega productos para generar una boleta.</p>
+        </div>
+      {% else %}
+        <div class="space-y-2">
+          {% for item in cart_items %}
+            <div class="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="text-sm font-semibold text-gray-800 truncate">{{ item.name }}</p>
+                  <p class="text-xs text-gray-500">
+                    ${{ item.price|floatformat:0 }} c/u ·
+                    {% if item.product_type == "STOCK" %}Bodega{% else %}Cocina{% endif %}
+                  </p>
+                </div>
+
+                <div class="text-right">
+                  <p class="text-sm font-bold text-gray-900">x {{ item.qty }}</p>
+                  <p class="text-sm font-bold text-gray-900">${{ item.line_total|floatformat:0 }}</p>
+                </div>
+              </div>
+
+              <div class="mt-3 flex gap-2">
+                <a href="{% url 'remove_one_from_cart' item.id %}"
+                   class="flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 rounded-lg text-xs font-semibold transition">
+                  Quitar 1
+                </a>
+                <a href="{% url 'add_to_cart' item.id %}"
+                   class="flex-1 text-center bg-gray-900 hover:bg-brand-600 text-white py-2 rounded-lg text-xs font-semibold transition">
+                  +1
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="p-5 bg-gray-50 border-t border-gray-200 space-y-3">
+      <div class="bg-white border border-gray-100 rounded-xl p-4">
+        <div class="flex justify-between text-sm text-gray-600">
+          <span>Subtotal</span>
+          <span class="font-semibold text-gray-900">${{ subtotal|floatformat:0 }}</span>
+        </div>
+        <div class="flex justify-between text-sm text-gray-600 mt-1">
+          <span>IVA ({{ tax_rate_percent }}%)</span>
+          <span class="font-semibold text-gray-900">${{ tax|floatformat:0 }}</span>
+        </div>
+        <div class="flex justify-between text-base font-bold mt-3 pt-3 border-t border-gray-100">
+          <span>Total</span>
+          <span>${{ total|floatformat:0 }}</span>
+        </div>
+      </div>
+
+      {% if cart_items|length > 0 %}
+        <a href="{% url 'confirm_sale' %}"
+           class="w-full block text-center bg-brand-600 hover:bg-brand-700 text-white py-3 rounded-xl font-bold shadow-lg transition">
+          Confirmar compra
+        </a>
+
+        <a href="{% url 'clear_cart' %}"
+           class="w-full block text-center bg-white hover:bg-gray-50 text-gray-800 py-3 rounded-xl font-bold border border-gray-200 transition">
+          Vaciar carrito
+        </a>
+      {% else %}
+        <button disabled
+           class="w-full block text-center bg-gray-200 text-gray-400 py-3 rounded-xl font-bold cursor-not-allowed">
+          Confirmar compra
+        </button>
+      {% endif %}
+    </div>
+  </aside>
+
+
+</div>
+{% endblock %}
