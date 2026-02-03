@@ -7,5 +7,5 @@ class SaleItemInline(admin.TabularInline):
 
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "total", "created_at")
+    list_display = ("user", "total", "created_at")
     inlines = [SaleItemInline]

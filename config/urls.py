@@ -19,11 +19,12 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("products.urls")),
+    path("dashboard/", include("products.urls")),
     path("sales/", include("sales.urls")),
-    path("accounts/", include("accounts.urls")),
+    path("", include("accounts.urls")),
 ]
 
 if settings.DEBUG:

@@ -3,8 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from products.models import Product
 from .services import create_sale
 from .models import Sale
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
+
 
 @login_required
 def clear_cart(request):
